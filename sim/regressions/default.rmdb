@@ -1,0 +1,55 @@
+<!-- - File         : default.rmbd                -->
+<!-- - Company      : EmTech S.A.                 -->
+<!-- - Author       : Joel Wayar                  -->
+<!-- - Address      : jwayar@emtech.com.ar        -->
+<!-- - Version      : 0.10                        -->
+<!-- - Description  : VRM script for project -->
+<rmdb>
+  <!-- ============================================================================================================ -->
+  <!-- project TESTS     -->
+  <!-- ============================================================================================================ -->
+  <!-- Comandos para ejecutar -->
+  <!-- project: vrun -run nightly_project -j 1 -noautodelete -noautomerge -vrmdata ./VRMDATA_project -->
+  <!-- ============================================================================================================ -->
+  <!-- =========================================  RUNNABLE project  ========================================== -->
+  <!-- ============================================================================================================ -->
+
+  <runnable name="nightly_project" type="group">
+    <parameters>
+      <parameter name="RUNDIR">(%RMDBDIR%)</parameter>
+      <parameter name="mergefile">merge.ucdb</parameter>
+      <parameter name="ucdbfile">(%TASKDIR%)/coverage.ucdb</parameter>
+      <parameter name="post_synth">no_post_synth</parameter>
+    </parameters>
+    <members>
+      <!-- tests -->
+      <member>sanity_test</member>
+      <member>reset_test</member>
+    </members>
+    <preScript>
+      <!-- no preScript -->
+    </preScript>
+    <execScript mintimeout="86400">      <!-- 24 hours -->
+      <command>cd (%RUNDIR%)</command>
+      <command>do ../run/prepare.do (%INSTANCE%) (%post_synth%)</command>
+      <command>do ../run/run.do (%INSTANCE%) </command>
+      <command>coverage attribute -name TESTNAME -value (%INSTANCE%)</command>
+      <command>coverage save (%ucdbfile%)</command>
+      <command>if {[file exists (%mergefile%)]} {</command>
+      <command>vcover merge -64 (%mergefile%) (%ucdbfile%) (%mergefile%)</command>
+      <command>} else {</command>
+      <command> file copy (%ucdbfile%) (%mergefile%)</command>
+      <command>}</command>
+    </execScript>
+    <postScript>
+      <command>vcover report -html -source -details -assert -directive -cvg -code bcefst -verbose -threshL 50 -threshH 90 (%mergefile%)</command>
+    </postScript>
+  </runnable>
+  <!-- =====================================================-->
+
+  <!-- =====================================================-->
+  <runnable name = "sanity_test" type = "task">
+  </runnable>
+  <runnable name = "reset_test" type = "task">
+  </runnable>
+</rmdb>

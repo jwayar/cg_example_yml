@@ -1,0 +1,5 @@
+PREPARE_ARGS: no_post_synth
+
+TEST_CATEGORY: 
+sanity_test
+reset_test
